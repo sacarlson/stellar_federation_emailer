@@ -1,0 +1,14 @@
+{
+  "name": "fed_email_payment_proc",
+  "version": "0.1.0",
+  "description": "Process federation email payments",
+  "main": "app.js",
+  "author": "sacarlson",
+  "license": "ISC",
+  "dependencies": {
+    "latest-version": "^3.1.0",
+    "mysql": "^2.12.0",
+    "nodemailer": "^4.0.0",
+    "stellar-sdk": "0.7.3"
+  }
+}

@@ -1,0 +1,6 @@
+
+*/5 * * * * /root/fed_processor/start.sh
+
+or 
+
+*/5 * * * * /var/www/funtracker.site/fed2/federation_processor/start.sh
