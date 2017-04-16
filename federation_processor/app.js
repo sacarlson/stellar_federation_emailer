@@ -52,6 +52,11 @@ config.stellar_server_host_live = "horizon-live.stellar.org";
 //config.disable_submit_tx = true;
 config.disable_submit_tx = false;
 
+// enable_rekey mode true will send the funded URL wallet link with the rekey set active
+// when set the funds in the wallet will be re-keyed to a new secret seed so you can detect the funds were recieved and the anchor no longer 
+// has access to the funds.  Warning with this set if the person you sent the funds looses his key, you and no one else can help him.
+config.enable_rekey = true;
+
 
 if (config.network == "test"){
   config.net_passphrase = config.net_passphrase_test; 
@@ -403,11 +408,19 @@ function make_email(tx_info){
   var l9 = config.asset_issuer + '</h3>';
   var l9_1 = '<h3>Date Sent: ';
   var l9_2 = tx_info.date_added + '</h3>';
-  var l10 = '<h1>Click <a title="My_wallet funded wallet link" href="https://sacarlson.github.io/my_wallet/?json=%7B%22seed%22:%22';
+  var l10 = '<h1>Click <a title="My_wallet funded wallet link" href="https://sacarlson.github.io/my_wallet/?json=%7B%22seed%22:%22';  
   if (config.network == "test"){
-    var l11 = tx_info.seed + '%22,%22network%22:%22test%22%7d" target="_blank">Here</a> To collect</h1>';
+    if (config.enable_rekey == true){
+      var l11 = tx_info.seed + '%22,%22network%22:%22test%22,%22rekey%22:%221%22%7d" target="_blank">Here</a> To collect</h1>';
+    }else{
+      var l11 = tx_info.seed + '%22,%22network%22:%22test%22%7d" target="_blank">Here</a> To collect</h1>';
+    }
   } else{
-    var l11 = tx_info.seed + '%22,%22network%22:%22live%22%7d" target="_blank">Here</a> To collect</h1>';
+     if (config.enable_rekey == true){     
+      var l11 = tx_info.seed + '%22,%22network%22:%22live%22,%22rekey%22:%221%22%7d" target="_blank">Here</a> To collect</h1>';
+    }else{
+      var l11 = tx_info.seed + '%22,%22network%22:%22live%22%7d" target="_blank">Here</a> To collect</h1>';
+    }
   }
   var l12 = '<p>For more info or if you have problems with the collection please contact us at <a title="funtracker chat direct" href="https://chat.funtracker.site"  target="_blank">https://chat.funtracker.site</a>.</p>'
   var mail_html_body = l1 + l1_1 + l2 + l3 + l4 + l5 + l6 + l7 + l8 +l9 + l9_1 +l9_2 +l10 + l11 + l12;
