@@ -55,7 +55,7 @@ config.disable_submit_tx = false;
 // enable_rekey mode true will send the funded URL wallet link with the rekey set active
 // when set the funds in the wallet will be re-keyed to a new secret seed so you can detect the funds were recieved and the anchor no longer 
 // has access to the funds.  Warning with this set if the person you sent the funds looses his key, you and no one else can help him.
-config.enable_rekey = true;
+config.enable_rekey = false;
 
 
 if (config.network == "test"){
@@ -154,7 +154,9 @@ let mailOptions = {
              //transaction.addOperation(operation);
              transaction = transaction.build();
              transaction.sign(from_keypair);
-             transaction.sign(to_keypair); 
+             if (tx_array.length > 1){
+               transaction.sign(to_keypair);
+             } 
              console.log("sending tx"); 
              console.log(transaction.toEnvelope().toXDR().toString("base64"));
              update_user_tx(transaction.operations[0].destination,transaction.toEnvelope().toXDR().toString("base64")); 
@@ -267,7 +269,7 @@ function process_accounts(config){
         user_keypair = gen_key();
         user_publicId = user_keypair.publicKey();
         user_secret = user_keypair.secret();
-        if (rows[i].asset_code == "XLM"){
+        if (rows[i].asset_code == "XLM" || rows[i].asset_code == "native"){
           amount_xlm = 0;
         } else {
           array = rows[i].memo.split(",");
@@ -391,6 +393,10 @@ function make_email(tx_info){
 // example funded wallet link
 //https://sacarlson.github.io/my_wallet/?json=%7B%22seed%22:%22SAYRX7...T%22%7D
 
+  if (tx_info.asset_code == "native"){
+    tx_info.asset_code = "XLM";
+  }
+
   var l1 = '<h1 style="text-align: center;"><span style="color: #ff0000;">You have been sent Stellar.org asset funds</span></h1><h4 style="text-align: center;">Anchored by Funtracker.site Bank</h4>';
   if (config.network == "test"){
     var l1_1 = '<h2 style="text-align: center;"><span style="color: #ff0000;">This is FAKE money (testnet) for TEST only</span></h2>';
@@ -408,7 +414,7 @@ function make_email(tx_info){
   var l9 = config.asset_issuer + '</h3>';
   var l9_1 = '<h3>Date Sent: ';
   var l9_2 = tx_info.date_added + '</h3>';
-  var l10 = '<h1>Click <a title="My_wallet funded wallet link" href="https://sacarlson.github.io/my_wallet/?json=%7B%22seed%22:%22';  
+  var l10 = '<h1>Click <a title="My_wallet funded wallet link" href="https://sacarlson.github.io/my_wallet/?json=%7B%22seed%22:%22';
   if (config.network == "test"){
     if (config.enable_rekey == true){
       var l11 = tx_info.seed + '%22,%22network%22:%22test%22,%22rekey%22:%221%22%7d" target="_blank">Here</a> To collect</h1>';

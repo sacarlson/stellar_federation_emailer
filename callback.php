@@ -5,6 +5,7 @@
 //http://b.funtracker.site/fed2/callback.php?token=abcde&memo=sacarlson_2000@yahoo.com,12&amount=33&from=GBDES..&asset_code=USD
 
 //https://www.funtracker.site/fed2/callback.php?token=abcde&memo=sacarlson_2000@yahoo.com,12&amount=33&from=GBDES..&asset_code=USD
+//https://www.funtracker.site/fed2/callback.php?token=abcde&memo=sacarlson_2000@yahoo.com,12&amount=33&from=GBDES..&asset_code=native
 
   //header('Content-type: text/html'); 
   header('Access-Control-Allow-Origin: *'); 
@@ -18,8 +19,16 @@
       $memo = $_GET["memo"];
     }else{
       echo "no memo return";
-      return;
+      if ($test_mode){
+        echo "test_mode continue";
+        $memo = "none";
+      }else{
+        return;
+      }
     }
+  }
+  if (strlen($memo) == 0){
+    $memo = "memo_length_0";
   }
   
   if (isset($_POST["memo_type"])){
@@ -60,10 +69,18 @@
 
   $array = explode("*",$memo);
   $username = $array[0];
-  $domain = $array[1];
+  if (count($array) > 1){
+    $domain = $array[1];
+  }
   if ( strlen($username) < 1){
     echo "username length 0 return";
-    return;
+    $username = "none";
+    $memo = "memo_blank";
+    if ($test_mode){
+      echo "test_mode active, will continue no username";
+    } else {
+      return;
+    }
   }
   if (count($array) > 1){
     $array2 = explode(",",$array[1]);
@@ -89,10 +106,15 @@
     die("Connection failed: " . $conn->connect_error);
   }
  
- if ($mysql_enable == "true"){  
-   insert_transaction($username,$anchor_publicid,$asset_code,$amount, "processing",$from,$memo); 
+ if ($mysql_enable == "true"){
+   if ($test_mode){
+     $status = "test_mode";
+   } else{
+     $status = "processing";
+   }  
+   insert_transaction($username,$anchor_publicid,$asset_code,$amount, $status,$from,$memo); 
    //insert_transaction($username,$sent_to,$seed,$asset_code,$amount, $status,$sent_from,$memo);
-   insert_user($username,"processing");  
+   insert_user($username,$status);  
    $conn->close();
  }
 

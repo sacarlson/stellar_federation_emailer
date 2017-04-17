@@ -13,9 +13,11 @@ This is a replacement for the stellar federation server, it will work with the s
 
 * With just 21 XLM you can have anyone added to federation database and the will have a funded account.
 
+* Uses branched stellar bridge to allow monitoring of XLM transactions
+
 * Is now running as federation server on Funtracker.site anchor, but the new accounts it creates are only testnet as proof of concept and test.
 
-* It's a good example on how to setup and make use of a bridge 
+* It's a good example on how to setup and make use of a stellar bridge (modified in this case) 
 
 After payment is sent it is first detected by the bridge monitor that does a callback that adds the transaction to the federation db. The federation_processor then scans for all un-processed payments to be forwarded, creates funded accounts and emails the funds to the email addresses.  The email contains a URL link to a my_wallet that provides the receiver access to the funds with just a click.
 

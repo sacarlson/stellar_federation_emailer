@@ -7,5 +7,5 @@
   $anchor_domain = "funtracker.site";
   $mysql_enable = "true";
   $token = "lkjhfdsa";
-  //$repeater_url = "http://b.funtracker.site/record_track.php";  
+  $test_mode = false; 
 ?>
