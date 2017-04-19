@@ -3,8 +3,8 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 12, 2017 at 11:58 AM
--- Server version: 5.7.15-0ubuntu0.16.04.1
+-- Generation Time: Apr 19, 2017 at 02:45 AM
+-- Server version: 5.7.13-0ubuntu0.16.04.2
 -- PHP Version: 7.0.15-0ubuntu0.16.04.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -17,8 +17,25 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `federation`
+-- Database: `fed2`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `challenge`
+--
+
+CREATE TABLE `challenge` (
+  `index2` int(11) NOT NULL,
+  `id` text NOT NULL,
+  `new_id` text NOT NULL,
+  `new_email` text NOT NULL,
+  `message` text NOT NULL,
+  `sig` text,
+  `status` text NOT NULL,
+  `date_updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -38,13 +55,6 @@ CREATE TABLE `transactions` (
   `date_added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `date_updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `transactions`
---
-
-INSERT INTO `transactions` (`id`, `username`, `sent_to`, `sent_from`, `amount`, `asset_code`, `status`, `memo`, `date_added`, `date_updated`) VALUES
-(8, 'sacarlson_2000@yahoo.com', 'GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ', 'GDUPQLNDVSUKJ4XKQQDITC7RFYCJTROCR6AMUBAMPGBIZXQU4UTAGX7C', '35', 'USD', 'processing', 'sacarlson_2000@yahoo.com,31', '2017-04-10 02:37:30', '2017-04-12 04:29:53');
 
 -- --------------------------------------------------------
 
@@ -93,12 +103,17 @@ INSERT INTO `Users` (`index`, `username`, `account_id`, `seed`, `date_added`, `d
 (24, 'powderfan', 'GAZMSGSJC6W3EPYEJG2Y3QPMPXKTWWRR5HMAQLRAOSBNHI524RGZT547', '', '2017-04-09 01:40:18', '2017-04-09 08:54:47', '', NULL),
 (25, 'florincm', 'GDAVUV7FHDAXC7RNBTQYYYVJGKEIOZAYTGRXPSOFZJGSJRHOXEWY3IMI', '', '2017-04-09 01:40:18', '2017-04-09 08:54:47', '', NULL),
 (26, 'Test', 'GBROAGZJGZSSQWJIIH2OHOPQUI4ZDZL4MOH7CSWLQBDGWBYDCDQT7CU4', '', '2017-04-09 01:40:18', '2017-04-09 08:54:47', '', NULL),
-(27, 'lcipciriuc', 'GAZWF3WPLFMBVEDSDSBEGYMXLSFLXZTNHMIIX32Z7SJ7DC4DJ6P5C353', '', '2017-04-09 01:40:18', '2017-04-09 08:54:47', '', NULL),
-(37, 'sacarlson_2000@yahoo.com', 'GDYC57IYDUDGKDAXC4YNPNG5ZZ4ELQWDU6ZO5XFQCRA6V25R7RZ6LLTZ', 'SDBI2...', '2017-04-10 02:37:30', '2017-04-12 04:29:53', 'processing', 'AAAAACtCv3nD80RqwZFAaLB2pZWqDE8fHDQgA3IXBQeGRsD6AAABLAAAF4MAAAAQAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAA8C79GB0GZQwXFzDXtN3OeEXCw6ey7tywFEHq67H8c+UAAAAAEno5gAAAAAEAAAAA8C79GB0GZQwXFzDXtN3OeEXCw6ey7tywFEHq67H8c+UAAAAGAAAAAVVTRAAAAAAAiZsoQO1WNsVt3F8Usjl1958bojiNJpTkxW7N3clg5e9//////////wAAAAAAAAABAAAAAPAu/RgdBmUMFxcw17TdznhFwsOnsu7csBRB6uux/HPlAAAAAVVTRAAAAAAAiZsoQO1WNsVt3F8Usjl1958bojiNJpTkxW7N3clg5e8AAAAAFNyTgAAAAAAAAAAChkbA+gAAAEDIJzaZG5qLP5QwKufGnlCfANhpnDvJw/vRcJj/hqaPoL60+GKBcVWYsqzogIQwcDH7Q7E891gKDxh2kLcWhwQAsfxz5QAAAEDXaNxs+A3FyZa2PhBz/jTAIkkOgpr3K7/h/LnOk9MjvgXK4CaJOPRNu9FtudjJ0JXmlD9as/J0TQ6ZSKLK7NEC');
+(27, 'lcipciriuc', 'GAZWF3WPLFMBVEDSDSBEGYMXLSFLXZTNHMIIX32Z7SJ7DC4DJ6P5C353', '', '2017-04-09 01:40:18', '2017-04-09 08:54:47', '', NULL);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `challenge`
+--
+ALTER TABLE `challenge`
+  ADD PRIMARY KEY (`index2`);
 
 --
 -- Indexes for table `transactions`
@@ -117,15 +132,20 @@ ALTER TABLE `Users`
 --
 
 --
+-- AUTO_INCREMENT for table `challenge`
+--
+ALTER TABLE `challenge`
+  MODIFY `index2` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+--
 -- AUTO_INCREMENT for table `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 --
 -- AUTO_INCREMENT for table `Users`
 --
 ALTER TABLE `Users`
-  MODIFY `index` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `index` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

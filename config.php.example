@@ -6,6 +6,7 @@
   $anchor_publicid = "GAVUFP3ZYPZUI2WBSFAGRMDWUWK2UDCPD4ODIIADOILQKB4GI3APVGIF";
   $anchor_domain = "funtracker.site";
   $mysql_enable = "true";
-  $token = "lkjhfdsa";
-  $test_mode = false; 
+  $token = "20_random_letter_numbers";
+  $test_mode = false;
+  $webhook_url = "https://www.funtracker.site/fed2/webhook.php";  
 ?>

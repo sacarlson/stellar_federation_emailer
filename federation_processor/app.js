@@ -17,7 +17,7 @@ var config = {};
 // it is the pass bettween account with minimal funding that the sender will send the funds to that will later
 // be sent to the new user.  this account must have trustlines in all the set issuers assets, for test the issuer only uses USD
  //GAVUFP3ZYPZUI2WBSFAGRMDWUWK2UDCPD4ODIIADOILQKB4GI3APVGIF  
-config.gateway_secret_test = "SA6IJ...";
+config.gateway_secret_test = "SA6IJO...";
 
  // GDUPQLNDVSUKJ4XKQQDITC7RFYCJTROCR6AMUBAMPGBIZXQU4UTAGX7C // alternate test gateway address
 //config.gateway_secret_test = "SDXVR...";
@@ -55,7 +55,7 @@ config.disable_submit_tx = false;
 // enable_rekey mode true will send the funded URL wallet link with the rekey set active
 // when set the funds in the wallet will be re-keyed to a new secret seed so you can detect the funds were recieved and the anchor no longer 
 // has access to the funds.  Warning with this set if the person you sent the funds looses his key, you and no one else can help him.
-config.enable_rekey = false;
+config.enable_rekey = true;
 
 
 if (config.network == "test"){
@@ -141,6 +141,23 @@ let mailOptions = {
   function gen_key(){
     return StellarSdk.Keypair.random();
   } 
+
+  
+  function signMessage(key,message){
+    //return signature signed by key of message in base64 format
+    console.log("publickey: ", key.publicKey());
+    var hash = StellarSdk.hash(StellarSdk.hash(message));
+    console.log("sign hash: ", hash);
+	return key.sign(hash).toString('base64');
+  }
+  
+
+  function verifyMessageSig(publickey,msg_string,b64_sig){
+    var keys = StellarSdk.Keypair.fromPublicKey(publickey);
+    var hash = StellarSdk.hash(StellarSdk.hash(msg_string));
+    var sig = new Buffer(b64_sig, 'base64');
+    return keys.verify(hash, sig);       
+  }
 
       var transaction;
       function submit_operation(tx_array,from_keypair,to_keypair,username) {
@@ -241,9 +258,34 @@ let mailOptions = {
                submit_operation(tx_array,from_keypair,to_keypair,username);
              }       
                
+function process_challenges(config){
+  console.log("start process_challenges");
+  // as seen from challenge table db
+  // index2: 3,
+  // id: GADXD..,
+  // new_id: GBDSA...,
+  // new_email: test@yahoo.com,
+  // message: dskdjfsld,
+  // sig: fjkdjs...,
+  // status: processing // awaiting.. // processed,
+  // date_updated: Mon Apr 10 2017 09:37:30 GMT+0700 (ICT)
+  con.query('SELECT * FROM challenge WHERE status = "processing"',function(err,rows){
+      if(err) throw err;
+      console.log(rows);
+      for (var i = 0; i < rows.length; i++) {
+         console.log(rows[i]);
+         if (verifyMessageSig(rows[i].id,rows[i].message,decodeURIComponent(rows[i].sig))){
+           console.log("id sig verified, will update id in user fed for index: ",rows[i].index2);
+           update_user_id(rows[i].id,rows[i].new_id,rows[i].new_email,rows[i].index2); 
+         }else{
+           console.log("id sig verify failed for index: ",rows[i].index2);
+         } 
+      }
+  });
+}
 
 function process_accounts(config){
-   console.log("start proc");
+   console.log("start process_accounts");
   // as seen returned from transactions table db
   //id: 8,
   //username: 'sacarlson_2000@yahoo.com',
@@ -292,7 +334,8 @@ function process_accounts(config){
         //function create_funded_account(from_keypair,to_keypair,asset_code,asset_issuer,amount,startingBalance){
         //create_funded_account(config.gateway_keypair,user_keypair,rows[i].asset_code,config.asset_issuer,rows[i].amount,amount_xlm); 
         create_funded_account(params);                       
-      }   
+      }
+      console.log("post query");   
     });    
   }
 
@@ -410,8 +453,13 @@ function make_email(tx_info){
   var l5 = tx_info.amount +'</h3>';
   var l6 = '<h3>Asset Code: ';
   var l7 = tx_info.asset_code + '</h3>';
-  var l8 = '<h3>Issuer: ';
-  var l9 = config.asset_issuer + '</h3>';
+  if (tx_info.asset_code != "XLM"){
+    var l8 = '<h3>Issuer: ';
+    var l9 = config.asset_issuer + '</h3>';
+  }else{
+    var l8 = "";
+    var l9 = "";
+  }
   var l9_1 = '<h3>Date Sent: ';
   var l9_2 = tx_info.date_added + '</h3>';
   var l10 = '<h1>Click <a title="My_wallet funded wallet link" href="https://sacarlson.github.io/my_wallet/?json=%7B%22seed%22:%22';
@@ -476,6 +524,34 @@ function update_user_tx(account_id,b64_tx_last){
    });    
 }
 
+function update_user_id(account_id,new_id,new_username,challenge_index){
+  // find users account_id and update to a new_id or new_username, update status of challenge status to processed
+  console.log("update_user_id");
+   var sql = '';
+   if (new_id.length == 0 && new_username.length > 0){
+     sql = "UPDATE `Users` SET username= '" + new_username + "', date_updated = now()  WHERE account_id = '" + account_id + "';";
+   }
+   if (new_id.length > 0 && new_username.length == 0){
+     sql = "UPDATE `Users` SET account_id= '" + new_id + "', date_updated = now()  WHERE account_id = '" + account_id + "';";
+   }
+   if (new_id.length > 0 && new_username.length > 0 && account_id.length == 0){
+     sql = "INSERT INTO Users (username,account_id,status, date_updated) VALUES ('" + new_user + "','" + new_id + "','proccessed',now());";
+   }
+   if (sql.length == 0){
+     console.log("sql length zero do nothing");
+     return;
+   }
+   con.query(sql,function(err,rows){
+      if(err) throw err;
+      console.log(rows);
+      var sql2 = "UPDATE `challenge` SET status= 'proccessed', date_updated = now()  WHERE index2 = '" + challenge_index + "';";
+      con.query(sql2,function(err,rows){ 
+        if(err) throw err;
+        console.log(rows); 
+      });      
+   });    
+}
+
  
  function update_transaction_user(username,status){
   console.log("update_transaction");
@@ -514,4 +590,7 @@ function update_user_tx(account_id,b64_tx_last){
 setTimeout(close_db,15000);
 
 process_accounts(config);
+
+process_challenges(config);
+
 
