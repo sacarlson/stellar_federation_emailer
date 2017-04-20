@@ -51,9 +51,11 @@ if ($conn->connect_error) {
     echo "sql: " . $sql;
     //wrt_log("sql: " . $sql . "\n");
     $result = $conn->query($sql);
+    $junk = exec('cd ./federation_processor/; node ./app.js',$data);
     if ($result === TRUE) {
        return true;
     } else {
        return false;
     }
+    
   }

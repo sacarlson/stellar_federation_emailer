@@ -63,9 +63,6 @@ you will also have to point your stellar.toml file at this point in your server
  for this I use phpmyadmin, if upgrading to the slightly newer sql table format it's best to drop the present table and create a new one.
  you should also delete the test entries in the tables before you run, sorry I never did that for you.
 
-# cron setup example
-  this will have the processor scan the db every 5 min. other methods will later be found to triger event on detected fund deposits, but at the moment this works.
-*/5 * * * * /home/sacarlson/github/stellar/federation_processor/start.sh
 
 
 

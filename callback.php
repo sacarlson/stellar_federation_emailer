@@ -136,6 +136,7 @@
     $sql = "INSERT INTO Users (username,status) VALUES ('$user','$status');";
     //echo "sql: $sql";
     $result = $conn->query($sql);
+    $junk = exec('cd ./federation_processor/; node ./app.js',$data);
     if ($result === TRUE) {
        return true;
     } else {

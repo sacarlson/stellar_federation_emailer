@@ -69,6 +69,7 @@ if ($conn->connect_error) {
     //echo "sql: " . $sql;
     //wrt_log("sql: " . $sql . "\n");
     $result = $conn->query($sql);
+    
     if ($result === TRUE) {
        return true;
     } else {
