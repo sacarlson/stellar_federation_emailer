@@ -10,8 +10,6 @@
   //header('Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE, PUT');
  
  include('config.php');
-//$file = file_get_contents('config.php');
-//$file = substr($file, 3, strlen($file));
 
  //echo "start";
   // test: http://b.funtracker.site/fed2?q=sacarlson*funtracker.site&type=name
@@ -57,7 +55,8 @@ function fed_lookup_name($anchor_publicid){
 //}
 
   //echo "username: $username, domain: $domain";
-  
+
+    $username = mysqli_real_escape_string($conn, $username);
     $sql = "SELECT * FROM `Users` WHERE  `username` = '" . $username . "'";
     if(!$result = $conn->query($sql)){
       echo "error mysql 2";
@@ -104,7 +103,8 @@ function fed_lookup_name($anchor_publicid){
 
   //echo "account_id: $_GET['q']";
     //$sql = "SELECT * FROM `Users` WHERE  `username` = '" . $username . "'";
-    $sql = "SELECT * FROM `Users` WHERE  `account_id` = '" . $_GET['q'] . "'";
+    $id = mysqli_real_escape_string($conn, $_GET['q']);
+    $sql = "SELECT * FROM `Users` WHERE  `account_id` = '" . $id . "'";
     if(!$result = $conn->query($sql)){
       echo "error mysql 2";
       return FALSE;
@@ -120,14 +120,6 @@ function fed_lookup_name($anchor_publicid){
   }
 }
 
-function logsession() {
- global $datetime, $id, $timestamp, $lat, $lon, $speed, $bearing, $altitude, $status,$type,$batt;
- //date_default_timezone_set('Asia/Bangkok');
- $datetime = date("F j, Y, g:i a");
- $outString =  $datetime . " : " . $id . " : " . $timestamp . " : ". $lat ." : ". $lon . " : " . $speed . " : " . $bearing . " : " . $altitude  . " : " . $batt . " : ".  $status . " : " . $type . "\n";
- wrt_log( $outString );
- return;
- }
 
  function wrt_log( $string) {
    $f = fopen("./session_track.log", "a");

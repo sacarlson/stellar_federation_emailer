@@ -21,15 +21,23 @@
  
  include('config.php');
 
+ // Create connection
+ $conn = new mysqli($servername, $mysql_username, $password, $dbname);
+ // Check connection
+ if ($conn->connect_error) {
+    echo "bad mysql connect error: " . $conn->connect_error;
+    die("Connection failed: " . $conn->connect_error);
+ }
 
  if (isset($_GET["id"])){
-    $id = $_GET["id"];
+    $id = mysqli_real_escape_string($conn, $_GET["id"]);
  }else{
    echo "no id provided";
    return;
  }
  if (isset($_GET["new_id"])){
     $new_id = $_GET["new_id"];
+    $new_id = mysqli_real_escape_string($conn, $_GET["new_id"]);
  }else{
    //echo "no new_id provided";
    //return;
@@ -38,6 +46,7 @@
 
  if (isset($_GET["new_email"])){
     $new_email = $_GET["new_email"];
+    $new_email = mysqli_real_escape_string($conn, $_GET["new_email"]);
  }else{
    if (isset($_GET["new_id"]) != true){
      echo ("no new_id and no new_mail error");
@@ -48,13 +57,7 @@
    }
  }
 
- // Create connection
-$conn = new mysqli($servername, $mysql_username, $password, $dbname);
-// Check connection
-if ($conn->connect_error) {
-    echo "bad mysql connect error: " . $conn->connect_error;
-    die("Connection failed: " . $conn->connect_error);
-}
+
 
  $rand_string = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), -10);
  $send_l1 = '{"stellar":{"challenge":{"id":"'. $id . '","message":"'; 

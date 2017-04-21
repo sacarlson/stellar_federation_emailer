@@ -13,34 +13,34 @@ header('Content-type: application/json');
  
  include('config.php');
 
+ // Create connection
+ $conn = new mysqli($servername, $mysql_username, $password, $dbname);
+ // Check connection
+
+ if ($conn->connect_error) {
+    echo "bad mysql connect error: " . $conn->connect_error;
+    die("Connection failed: " . $conn->connect_error);
+ }
 
  if (isset($_GET["id"])){
-    $id = $_GET["id"];
+    $id = mysqli_real_escape_string($conn, $_GET["id"]);
  }else{
    echo "no id provided";
    return;
  }
  if (isset($_GET["sig"])){
-    $sig = $_GET["sig"];
+    $sig = mysqli_real_escape_string($conn, $_GET["sig"]);
  }else{
    echo "no sig provided";
    return;
  }
  if (isset($_GET["msg"])){
-    $msg = $_GET["msg"];
+    $msg = mysqli_real_escape_string($conn, $_GET["msg"]);
  }else{
    echo "no msg provided";
    return;
  }
-
-  // Create connection
-$conn = new mysqli($servername, $mysql_username, $password, $dbname);
-// Check connection
-if ($conn->connect_error) {
-    echo "bad mysql connect error: " . $conn->connect_error;
-    die("Connection failed: " . $conn->connect_error);
-}
-
+  
  insert_challenge_response($id,$msg,$sig,"processing");
  //echo "ok";
 
@@ -56,6 +56,5 @@ if ($conn->connect_error) {
        return true;
     } else {
        return false;
-    }
-    
+    }   
   }
