@@ -30,7 +30,7 @@ This method allows any stellar wallet that supports federation to send any asset
 I still think dzham has a better safer method that involves a no trust multi-sig handshake method that we may all later turn to or something like it rather than this method at some point when all the wallet are upgraded to support it.  We still might use this method as a fallback when nothing else is available.
  
 ## Screen shot of email received
-[[Screenshot_email.png]]
+[[https://raw.githubusercontent.com/sacarlson/stellar_federation_emailer/master/Screenshot_email.png]]
 
 # install federation_processor
 cd federation_processor
