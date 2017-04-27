@@ -7,7 +7,9 @@ This is a replacement for the stellar federation server, it will work with the s
 
 * Standard federation id reverse lookup of publicId (if domain on account is set)
 
-* If Account doesn't exist in federation database, setup transaction to forward funds and sent to destination target email with simple method for receiver to use them with a simple URL link click.
+* If Account doesn't exist in federation database, setup transaction to forward funds and send to destination target email with simple method for receiver to use them with a simple URL link click.
+
+* When account doesn't exist in lookup, tx memo contains integer index to reference recorded email address in federation db.  This makes User Email unexposed to stellar public ledger.
 
 * Can send any asset type that the anchor (funtracker.site in this case) supports
 
