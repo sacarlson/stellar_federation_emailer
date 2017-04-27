@@ -17,7 +17,7 @@ var config = {};
 // it is the pass bettween account with minimal funding that the sender will send the funds to that will later
 // be sent to the new user.  this account must have trustlines in all the set issuers assets, for test the issuer only uses USD
  //GAVUFP3ZYPZUI2WBSFAGRMDWUWK2UDCPD4ODIIADOILQKB4GI3APVGIF  
-config.gateway_secret_test = "SA6IJO...";
+config.gateway_secret_test = "SA6IJ...";
 
  // GDUPQLNDVSUKJ4XKQQDITC7RFYCJTROCR6AMUBAMPGBIZXQU4UTAGX7C // alternate test gateway address
 //config.gateway_secret_test = "SDXVR...";
@@ -317,6 +317,9 @@ function process_accounts(config){
           array = rows[i].memo.split(",");
           if (array.length >1){
             amount_xlm = array[1];
+            if (amount_xlm > 61){
+              amount_xlm = 61;
+            }
           }else{
             amount_xlm = 0;
           }

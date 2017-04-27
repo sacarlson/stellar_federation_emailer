@@ -67,14 +67,16 @@
     return;
   }
 
-  $array = explode("*",$memo);
-  $username = $array[0];
+  $array = explode(",",$memo);
+  $user_idx = $array[0];
   if (count($array) > 1){
-    $domain = $array[1];
+    $amount_xlm = $array[1];
+  } else{
+    $amount_xlm = 0;
   }
-  if ( strlen($username) < 1){
+  if ( strlen($user_idx) < 1){
     echo "username length 0 return";
-    $username = "none";
+    $user_idx = "none";
     $memo = "memo_blank";
     if ($test_mode){
       echo "test_mode active, will continue no username";
@@ -82,21 +84,9 @@
       return;
     }
   }
-  if (count($array) > 1){
-    $array2 = explode(",",$array[1]);
-  } else {
-    $array2 = explode(",",$array[0]);
-  }
-  //$domain = $array[0];
-  $count = count($array2);
-  if (count($array2) > 1){
-    $amount_xlm = $array2[1];
-    $username = $array2[0];
-  }else{
-    $amount_xlm = 0;
-  }
+  
 
-  //echo "$username : $domain : $amount_xlm : $amount : $asset_code : $from : $count " ;
+  //echo "$user_idx : $amount_xlm : $amount : $asset_code : $from : $count " ;
 
   // Create connection
   $conn = new mysqli($servername, $mysql_username, $password, $dbname);
@@ -111,10 +101,17 @@
      $status = "test_mode";
    } else{
      $status = "processing";
-   }  
-   insert_transaction($username,$anchor_publicid,$asset_code,$amount, $status,$from,$memo); 
-   //insert_transaction($username,$sent_to,$seed,$asset_code,$amount, $status,$sent_from,$memo);
-   insert_user($username,$status);  
+   }
+   $usertable = check_idx_exist($user_idx);
+   if ($usertable){  
+     insert_transaction($usertable['username'],$anchor_publicid,$asset_code,$amount, $status,$from,$memo); 
+     //insert_transaction($username,$sent_to,$seed,$asset_code,$amount, $status,$sent_from,$memo);
+     //insert_user($username,$status); 
+     update_user_idx($user_idx, $status);
+   } else{
+     die("user_idx not found");
+     return;
+   } 
    $conn->close();
  }
 
@@ -131,12 +128,26 @@
     }
   }
 
+  function check_idx_exist($idx){
+    global $conn;
+    $sql = "SELECT * FROM `Users` WHERE  `index` = '" . $idx . "'";
+    $result = $conn->query($sql);
+    if ($result->num_rows > 0) {
+       $usertable = $result->fetch_assoc();       
+       //return $usertable["account_id"];
+       return $usertable;
+    } else {
+       // username not exist in db
+       return false;
+    }
+  }
+
   function insert_user($user, $status){
     global $conn;
     $sql = "INSERT INTO Users (username,status) VALUES ('$user','$status');";
     //echo "sql: $sql";
     $result = $conn->query($sql);
-    $junk = exec('cd ./federation_processor/; node ./app.js',$data);
+    //$junk = exec('cd ./federation_processor/; node ./app.js',$data);
     if ($result === TRUE) {
        return true;
     } else {
@@ -145,9 +156,23 @@
     }
   }
 
-  function insert_transaction($username,$sent_to,$asset_code,$amount, $status,$sent_from,$memo){
+  function update_user_idx($user_idx, $status){
     global $conn;
-    $sql = "INSERT INTO transactions (username,sent_to,asset_code,amount,status,sent_from,memo) VALUES ('$username','$sent_to','$asset_code', '$amount',  '$status', '$sent_from','$memo' );";
+    $sql = "UPDATE Users SET  status='$status', date_updated= now() WHERE `index` = '$user_idx'";
+    //echo "sql: " . $sql;
+    $result = $conn->query($sql);
+    $junk = exec('cd ./federation_processor/; node ./app.js',$data);
+    if ($result === TRUE) {
+       return true;
+    } else {
+       echo "error update";
+       return false;
+    }
+  }
+
+  function insert_transaction($user_idx,$sent_to,$asset_code,$amount, $status,$sent_from,$memo){
+    global $conn;
+    $sql = "INSERT INTO transactions (username,sent_to,asset_code,amount,status,sent_from,memo) VALUES ('$user_idx','$sent_to','$asset_code', '$amount',  '$status', '$sent_from','$memo' );";
     //echo "sql: $sql";
     $result = $conn->query($sql);
     if ($result === TRUE) {

@@ -70,8 +70,9 @@ function fed_lookup_name($anchor_publicid){
     echo '{"stellar_address":"' . $_GET['q'] . '","account_id":"' . $user["account_id"] . '"}';
     return TRUE;
     // check if username is an email address must have @ in it 
-  } else if (!filter_var($GET['q'], FILTER_VALIDATE_EMAIL)){
-    echo '{"stellar_address":"' . $_GET['q'] . '","account_id":"' . $anchor_publicid . '","memo_type":"text","memo":"' . $username . ',61"}';  
+  } else if (filter_var($username, FILTER_VALIDATE_EMAIL)){
+    $idx = insert_user($username,"not_set","pre_proc");
+    echo '{"stellar_address":"' . $_GET['q'] . '","account_id":"' . $anchor_publicid . '","memo_type":"text","memo":"' . $idx . ',61"}';  
     return FALSE;
   } else{
     echo '{"stellar_address":"' . $_GET['q'] . '","account_id":"' . "not_found" . '"}'; 
@@ -85,7 +86,8 @@ function fed_lookup_name($anchor_publicid){
     //wrt_log("sql: " . $sql . "\n");
     $result = $conn->query($sql);
     if ($result === TRUE) {
-       return true;
+       return $conn->insert_id;
+       //return true;
     } else {
        return false;
     }
