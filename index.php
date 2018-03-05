@@ -57,6 +57,13 @@ function fed_lookup_name($anchor_publicid){
   //echo "username: $username, domain: $domain";
 
     $username = mysqli_real_escape_string($conn, $username);
+
+    $sql = 'DELETE FROM `Users` WHERE `status` = "pre_proc" AND date_added < TIMESTAMPADD(MINUTE, -120, NOW())';
+    if(!$result = $conn->query($sql)){
+      echo "error mysql 3";
+      //wrt_log("check user query fail: " . mysqli_error($conn) . "\n");
+      return FALSE;
+    }
     $sql = "SELECT * FROM `Users` WHERE  `username` = '" . $username . "'";
     if(!$result = $conn->query($sql)){
       echo "error mysql 2";
@@ -67,12 +74,16 @@ function fed_lookup_name($anchor_publicid){
   if ($result->num_rows > 0) {
     //wrt_log("username exists true \n");
     $user = $result->fetch_assoc();
+    if ($user["account_id"] == "not_set"){
+      echo '{"stellar_address":"' . $_GET['q'] . '","account_id":"' . $anchor_publicid . '","memo_type":"text","memo":"' . $user["index"] . '"}';  
+      return TRUE;
+    }
     echo '{"stellar_address":"' . $_GET['q'] . '","account_id":"' . $user["account_id"] . '"}';
     return TRUE;
     // check if username is an email address must have @ in it 
   } else if (filter_var($username, FILTER_VALIDATE_EMAIL)){
     $idx = insert_user($username,"not_set","pre_proc");
-    echo '{"stellar_address":"' . $_GET['q'] . '","account_id":"' . $anchor_publicid . '","memo_type":"text","memo":"' . $idx . ',61"}';  
+    echo '{"stellar_address":"' . $_GET['q'] . '","account_id":"' . $anchor_publicid . '","memo_type":"text","memo":"' . $idx . '"}';  
     return FALSE;
   } else{
     echo '{"stellar_address":"' . $_GET['q'] . '","account_id":"' . "not_found" . '"}'; 

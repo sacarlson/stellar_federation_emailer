@@ -1,2 +1,2 @@
 cd /var/www/funtracker.site/fed2/federation_processor
-/usr/bin/nodejs ./app.js >> fed.log
+/usr/local/bin/node ./app.js >> fed.log

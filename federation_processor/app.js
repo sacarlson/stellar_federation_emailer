@@ -17,34 +17,39 @@ var config = {};
 // it is the pass bettween account with minimal funding that the sender will send the funds to that will later
 // be sent to the new user.  this account must have trustlines in all the set issuers assets, for test the issuer only uses USD
  //GAVUFP3ZYPZUI2WBSFAGRMDWUWK2UDCPD4ODIIADOILQKB4GI3APVGIF  
-config.gateway_secret_test = "SA6IJ...";
+config.gateway_secret_test = "SA6I....";
 
  // GDUPQLNDVSUKJ4XKQQDITC7RFYCJTROCR6AMUBAMPGBIZXQU4UTAGX7C // alternate test gateway address
 //config.gateway_secret_test = "SDXVR...";
 
-config.gateway_secret_live = "not_set";
+// GATXLX5YVEQQ7X5LZ77TZMK5RPME4XKIDMEO2TZDKV65DI6J2VQAUIHR
+config.gateway_secret_live = "SBSL...";
 
 // this should be set to the anchor asset_issuer address like GBUY... for live or GCEZ... for testnet
 // at this time we only use asset_code USD from this issuer in test
 config.asset_issuer_test = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ";
-config.asset_issuer_live = "GBUYUAI75XXWDZEKLY66CFYKQPET5JR4EENXZBUZ3YXZ7DS56Z4OKOFU";
+// asset_issuer_test secret = SBQWY3DNPFWGSZTFNV4WQZLBOJ2GQYLTMJSWK3TTMVQXEY3INFXGO52X (master testnet account)
+
+//config.asset_issuer_live = "GBUYUAI75XXWDZEKLY66CFYKQPET5JR4EENXZBUZ3YXZ7DS56Z4OKOFU";
+config.asset_issuer_live = "GATXLX5YVEQQ7X5LZ77TZMK5RPME4XKIDMEO2TZDKV65DI6J2VQAUIHR";
 
 // note for gmail with this type login you will also have to setup gmail in lesssecure mode https://myaccount.google.com/lesssecureapps?pli=1
 // or setup in 0auth2 mode at some point
-config.gmail_username = 'funtracker.site.bank@gmail.com';
+config.gmail_username = 'myemail@gmail.com';
 config.gmail_password = 'password';
 
 config.mysql_host = "localhost";
-config.mysql_user = "fed2";
+config.mysql_user = "fed2b";
 config.mysql_password = "password";
 config.mysql_database = "fed2";
 
 // stellar network test or live;
+//config.network = "live";
 config.network = "test";
 config.net_passphrase_test = "Test SDF Network ; September 2015";
 config.net_passphrase_live = "Public Global Stellar Network ; September 2015";
 config.stellar_server_host_test = "horizon-testnet.stellar.org";
-config.stellar_server_host_live = "horizon-live.stellar.org";
+config.stellar_server_host_live = "horizon.stellar.org";
 
 // this will disable sending the transaction and just do the email if set to true;
 // this is for preliminary testing to verify all other parts work before testing stellar transactions
@@ -55,7 +60,7 @@ config.disable_submit_tx = false;
 // enable_rekey mode true will send the funded URL wallet link with the rekey set active
 // when set the funds in the wallet will be re-keyed to a new secret seed so you can detect the funds were recieved and the anchor no longer 
 // has access to the funds.  Warning with this set if the person you sent the funds looses his key, you and no one else can help him.
-config.enable_rekey = true;
+config.enable_rekey = false;
 
 
 if (config.network == "test"){
@@ -222,7 +227,8 @@ let mailOptions = {
                var amount = params.amount;
                var startingBalance = params.startingBalance; 
                var username = params.username;
-
+               console.log("create_funded_account params");
+               console.log(params);
                var tx_array = [];
                if (asset_code == "native"){
                  asset_code = "XLM";
@@ -243,11 +249,11 @@ let mailOptions = {
          //tx_array.push(StellarSdk.Operation.changeTrust({asset: asset_obj,source:keypair_escrow.publicKey()}));
 
                  // setup payment of non native asset
-                 tx_array.push(StellarSdk.Operation.payment({
-                   destination: to_keypair.publicKey(),
-                   amount: fix7dec(amount),
-                   asset: asset
-                 }));
+                 //tx_array.push(StellarSdk.Operation.payment({
+                 //  destination: to_keypair.publicKey(),
+                 //  amount: fix7dec(amount),
+                 //  asset: asset
+                 //}));
 
                }else {
                  tx_array.push(StellarSdk.Operation.createAccount({
@@ -305,6 +311,7 @@ function process_accounts(config){
    var params = {};
    con.query('SELECT * FROM transactions WHERE status = "processing"',function(err,rows){
       if(err) throw err;
+      console.log("rows");
       console.log(rows);
       for (var i = 0; i < rows.length; i++) {
         console.log(rows[i]);
@@ -314,16 +321,31 @@ function process_accounts(config){
         if (rows[i].asset_code == "XLM" || rows[i].asset_code == "native"){
           amount_xlm = 0;
         } else {
-          array = rows[i].memo.split(",");
-          if (array.length >1){
-            amount_xlm = array[1];
-            if (amount_xlm > 61){
-              amount_xlm = 61;
-            }
-          }else{
-            amount_xlm = 0;
-          }
+          console.log("asset recieved was not XLM will ignore forwarding");
+          amount_xlm = 0;
+          rows[i].amount = 0;          
         }
+        array = rows[i].memo.split(",");
+        if (array.length >1){
+            console.log("parsefloat amount");
+            console.log(parseFloat(rows[i].amount));
+            if (parseFloat(rows[i].amount) > 1.5002){
+              console.log("rows.amount was grater than 1.5002");
+              //subtract 0.0002 from amount to send for transaction fee's to create two operations to add trustline
+              // at this time we will only allow adding 1 asset to created account
+              rows[i].asset_code = array[1];
+              amount_xlm = rows[i].amount - 0.0002;
+              amount_xlm = amount_xlm.toString();
+              rows[i].amount = "0";
+            } else{
+              console.log("didn't fund enuf less than 1.5002 amount");
+              rows[i].amount = 0;
+              amount_xlm = 0;
+            }
+        }
+        console.log("amount_xlm");
+        console.log(amount_xlm);
+        console.log(rows[i].amount);
         //update_user(rows[i].username,user_publicId,user_secret,"funding");
         update_user_seed(rows[i].username,user_publicId,user_secret);
 

@@ -13,23 +13,25 @@ This is a replacement for the stellar federation server, it will work with the s
 
 * Can send any asset type that the anchor (funtracker.site in this case) supports
 
-* With just 20.1 XLM you can have anyone added to federation database and they will have a working funded account seen in there email.
+* With just 1.0001 XLM you can have anyone added to federation database and they will have a working funded account seen in there email.
 
-* With just 40.1 XLM sent the wallet has the ability and will auto re-key (when mode is set) so anchor no longer holds secret key to funds
+* With a manually edited memo you can also add a single trustline to the account your sending to your email buddy. Example if index resolves to "102" you can manually edit the memo to be "102,USD" to add a trustline of USD/funtracker.site to the account that is emailed.  For this you must also send a minimum 1.5002 XLM needed for added reserves and fee's of 2 opps.
+
+* With minimum 3.0004 XLM sent the wallet has the ability to auto re-key (when mode is set) so anchor no longer holds secret key to funds.  To re-key with added trustline you would have to send minumum 4.0004 XLM.  This is required due to the fact that for a time there will be two accounts on the network when moving the assets and merging the accounts in re-key operation on the wallet side.
 
 * Uses branched stellar bridge to allow monitoring of XLM transactions
 
-* Is now running as federation server on Funtracker.site anchor, but the new accounts it creates are only testnet as proof of concept and test.
+* Is now running as federation server on Funtracker.site anchor (has now been runing for over 11 months on funtracker.site) 
 
 * It's a good example on how to setup and make use of a stellar bridge (modified in this case) 
 
-After payment is sent it is first detected by the bridge monitor that does a callback that adds the transaction to the federation db. The federation_processor then scans for all un-processed payments to be forwarded, creates funded accounts and emails the funds to the email addresses.  The email contains a URL link to a my_wallet that provides the receiver access to the funds with just a click.
+After payment is sent it is first detected by the bridge monitor that does a callback that adds the transaction to the federation db. The federation_processor then scans for all un-processed payments to be forwarded, creates funded accounts and emails the funds to the email addresses.  The email contains a URL link to a my_wallet that provides the receiver access to the funds with just a click of the URL link.
 
-In this release we have my_wallet also re-key the account when the link is clicked and have it also update the funtracker.site federation with it's newly created account.  In the future We will then have a time out window of maybe a week if the wallet link is not clicked that the funds will then be returned to the sender.  But for now this works.  At this stage if we were to use it on Live Net (now only testnet) we would just have the sender contact us and we would mannualy return the funds to them if they can prove they sent them with a small tx or message sign verify.
+In this release we have my_wallet also optionally re-key the account when the link is clicked and have it also update the funtracker.site federation with it's newly created account.  In the future we will then have a time out window of maybe a week if the wallet link is not clicked that the funds will then be returned to the sender.  But for now this works.  
 
-This method allows any stellar wallet that supports federation to send any asset an anchor supports to anyone that they happen to know the email address of, however it also requires trusting funtracker.site anchor or whoever ends up running this server to forward the funds for them. But how much trust do we really need if we are sending about $0.04USD worth of XLM to open an account for someone.  After the account is working you no longer need to trust funtracker.site to forward funds anymore, federation will point direct to the the users newly created re-keyed wallet account.
+This method allows any stellar wallet that supports federation to send any asset an anchor supports to anyone that they happen to know the email address of, however it also requires trusting funtracker.site anchor or whoever ends up running this server to forward the funds for them. But how much trust do we really need if we are sending about $0.40 USD worth of XLM to open an account for someone.  After the account is working you no longer need to trust funtracker.site to forward funds anymore, federation will point direct to the the users newly created re-keyed wallet account.  Note re-key can be done manually if not set to auto re-key mode.
 
-I still think dzham has a better safer method that involves a no trust multi-sig handshake method that we may all later turn to or something like it rather than this method at some point when all the wallet are upgraded to support it.  We still might use this method as a fallback when nothing else is available.
+I still think dzham has a better safer method that involves a no trust multi-sig handshake method that we may all later turn to or something like it rather than this method at some point when all the wallet are upgraded to support it.  We still might use this method as a fallback when nothing else is available for older wallets that only support the present standard federation.
  
 ## Screen shot of email received
 [[ https://raw.githubusercontent.com/sacarlson/stellar_federation_emailer/master/Screenshot_email.png ]]
