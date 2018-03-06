@@ -326,6 +326,8 @@ function process_accounts(config){
           rows[i].amount = 0;          
         }
         array = rows[i].memo.split(",");
+        // take out the transaction fee for a single opp
+        rows[i].amount = rows[i].amount - 0.0001;
         if (array.length >1){
             console.log("parsefloat amount");
             console.log(parseFloat(rows[i].amount));
@@ -334,7 +336,8 @@ function process_accounts(config){
               //subtract 0.0002 from amount to send for transaction fee's to create two operations to add trustline
               // at this time we will only allow adding 1 asset to created account
               rows[i].asset_code = array[1];
-              amount_xlm = rows[i].amount - 0.0002;
+              // take out transaction fee for the secound opp to add trustline
+              amount_xlm = rows[i].amount - 0.0001;
               amount_xlm = amount_xlm.toString();
               rows[i].amount = "0";
             } else{
@@ -475,7 +478,7 @@ function make_email(tx_info){
   var l2 = '<h3>Funds sent by: '; 
   var l3 = tx_info.sent_from +'</h3>';
   var l4 = '<h3>Amount: ';
-  var l5 = tx_info.amount +'</h3>';
+  var l5 = tx_info.amount +' less tx fees (0.0001 XLM per opp)</h3>';
   var l6 = '<h3>Asset Code: ';
   var l7 = tx_info.asset_code + '</h3>';
   if (tx_info.asset_code != "XLM"){
